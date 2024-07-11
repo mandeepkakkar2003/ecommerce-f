@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { Select } from "antd";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from './../../../config';
+
 const { Option } = Select;
 
 const CreateProduct = () => {
@@ -21,7 +23,7 @@ const CreateProduct = () => {
   //get all category
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
+      const { data } = await axios.get(`${API_BASE_URL}/category/get-category`);
       if (data?.success) {
         setCategories(data?.category);
       }

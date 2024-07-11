@@ -1,22 +1,39 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/auth";
+import { Outlet } from "react-router-dom";
 import axios from "axios";
+import Spinner from "../Spinner";
+import { API_BASE_URL } from './../../../config';
 
-export default function useCategory() {
-  const [categories, setCategories] = useState([]);
-
-  //get cat
-  const getCategories = async () => {
-    try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      setCategories(data?.category);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+export default function PrivateRoute() {
+  const [ok, setOk] = useState(false);
+  const [auth, setAuth] = useAuth();
 
   useEffect(() => {
-    getCategories();
-  }, []);
+    const authCheck = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/auth/admin-auth`, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`  // Assuming you need to pass the token for authentication
+          }
+        });
+        if (res.data.ok) {
+          setOk(true);
+        } else {
+          setOk(false);
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setOk(false);
+      }
+    };
 
-  return categories;
+    if (auth?.token) {
+      authCheck();
+    } else {
+      setOk(false);
+    }
+  }, [auth?.token]);
+
+  return ok ? <Outlet /> : <Spinner />;
 }
